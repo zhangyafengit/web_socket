@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="col-md-6">
+    <div class="panel panel-info" style="background-color: whitesmoke">
+        <div class="panel-heading">
+            <h3 class="panel-title">聊天室</h3>
+            你是谁：<input type="text" id="username">
+            <button id="create_ws" onclick="go_to()">创建ws连接</button>
+        </div>
+        <div class="panel-body" style="width: 500px;height: 400px;" id="chat_window">
+
+        </div>
+        <div style="margin-left: 400px;margin-bottom: 10px;">
+            <input type="text" id="send_msg">
+            <button id="btn_send">ENTER</button>
+        </div>
+    </div>
+</div>
+
+</body>
+<script type="application/javascript">
+    var ws_url = "ws://127.0.0.3:9522/ws/";
+    var ws = null;
+    function go_to() {
+        var username = document.getElementById("username");
+        ws = new WebSocket(ws_url + username.value);
+
+        ws.onmessage = function (serv_msg) {
+            msg = JSON.parse(serv_msg.data);
+            create_chat("y", msg)
+        };
+    }
+    function create_chat(self, content) {
+        if (self == 'w') {
+            self = "right";
+            var spantag = document.createElement("span");
+            spantag.innerText = content.send_msg;
+            var spantag1 = document.createElement("span");
+            spantag1.innerText = ":我";
+        } else {
+            self = 'left';
+            var spantag = document.createElement("span");
+            spantag.innerText = content.send_user + ":";
+            var spantag1 = document.createElement("span");
+            spantag1.innerText = content.send_msg;
+        }
+        var divtag = document.createElement("div");
+        divtag.style = "text-align:" + self;
+
+        divtag.appendChild(spantag1);
+        divtag.appendChild(spantag);
+        var chat_window = document.getElementById("chat_window");
+        chat_window.appendChild(divtag);
+    }
+    document.getElementById("btn_send").addEventListener("click", function () {
+        var send_msg = document.getElementById("send_msg");
+        ws.send(send_msg.value);
+        var s_msg = {send_msg: send_msg.value};
+        create_chat("w", s_msg);
+        send_msg.value = "";
+    })
+</script>
+
+
+</html>

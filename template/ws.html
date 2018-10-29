@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="col-md-6">
+    <div class="panel panel-info" style="background-color: whitesmoke">
+        <div class="panel-heading">
+            <h3 class="panel-title">聊天室</h3>
+        </div>
+        <div class="panel-body" style="width: 500px;height: 400px;" id="chat_window">
+
+        </div>
+        <div style="margin-left: 400px;margin-bottom: 10px;">
+            <input type="text" id="send_msg">
+            <button id="btn_send">ENTER</button>
+        </div>
+    </div>
+</div>
+
+
+</body>
+<script type="application/javascript">
+    var ws = new WebSocket("ws://127.0.0.1:9520/ws");
+    //创建一个新的websocket连接。
+    //    ws.onopen=function () {
+    //        ws.send('你好')
+    //    };
+
+    //使用ws实例出的ws监听onmessage事件。
+    ws.onmessage = function (serv_msg) {
+        create_chat("y", serv_msg.data);
+//        console.log(serv_msg);
+//        console.log(serv_msg.data)
+    };
+    //创建对话内容
+    function create_chat(self, content) {
+        //self和content
+        if (self == "w") {
+            //如果为自己那么放到右边，创建
+            self = "right";
+            var spantag = document.createElement("span");
+            spantag.innerText = content;
+            var spantag1 = document.createElement("span");
+            spantag1.innerText = ":我";
+        } else {
+            self = "left";
+            var spantag = document.createElement('span');
+            spantag.innerText = "你:";
+            var spantag1 = document.createElement('span');
+            spantag1.innerText = content;
+        }
+        var divtag = document.createElement("div");
+        divtag.style = "text-align:" + self;
+        divtag.appendChild(spantag);
+        divtag.appendChild(spantag1);
+        var chat_window = document.getElementById("chat_window");
+        chat_window.appendChild(divtag);
+    }
+    document.getElementById("btn_send").addEventListener("click", function () {
+        //addEventListener对点击事件click进行监听
+        var send_msg = document.getElementById("send_msg");
+        ws.send(send_msg.value);
+        //拿到发送的内容
+        create_chat("w", send_msg.value);
+        //发送之后将输入框清空
+        send_msg.value = "";
+    })
+
+</script>
+</html>
